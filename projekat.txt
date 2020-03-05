@@ -1,0 +1,746 @@
+Glavni
+from projekat import korisnici
+from projekat import letovi
+lista_korisnika=[]
+def main():
+    print("Aplikacija za avionske kompanije")
+    print()
+    komanda = '0'
+    while komanda != '2':
+        komanda=meni()
+        if komanda=='1':
+            prijava()
+        elif komanda=='2':
+            print("Hvala na posjeti!")
+        elif komanda=='3':
+            letovi.nerealizovani()
+        elif komanda=='4':
+            letovi.visekriterijumska_pretraga()
+        elif komanda=='5':
+            letovi.visekriterijumska_pretraga()
+        elif komanda=='6':
+            letovi.deset_najjeftinijih_letova()
+        elif komanda=='7':
+            letovi.fleksibilni_letovi()
+        elif komanda=='8':
+            registracija()
+def meni():
+    printMeni()
+    komanda=input(">>")
+    while komanda not in ('1','2','3','4','5','6','7','8'):
+        print("Unijeli ste nepostojecu komandu.Pokusajte ponovo. ")
+        printMeni()
+        komanda=input(">>")
+    return komanda
+def printMeni():
+    print("Opcije:")
+    print("1 - Prijava na sistem")
+    print("2 - Izlaz iz aplikacije")
+    print("3 - Pregled nerealizovanih letova")
+    print("4 - Pretraga letova")
+    print("5 - Visekriterijumska pretraga letova")
+    print("6 - Prikaz 10 najjeftinijih letova (po opadajucoj cijeni)")
+    print("7 - Fleksibilni polasci")
+    print("8 - Registracija")
+def registracija():
+    print("------Registracija-------")
+    kor={}
+    while True:
+        kor['korisnicko_ime']=input("Unesi korisnicko ime:")
+        if kor['korisnicko_ime'] == "":
+            print("Niste nista unijeli")
+        else:
+            break
+    while True:
+        kor['lozinka']=input("Unesi lozinku:")
+        if kor['lozinka'] !="":
+            break
+        else:
+            print("Niste nista unijeli.Pokusajte ponovo.")
+    while True:
+        kor['ime']=input("Unesi ime")
+        if kor['ime'] != "":
+            break
+        else:
+            print("Niste nista unijeli.Pokusajte ponovo.")
+    while True:
+        kor['prezime']=input("Unesi prezime:")
+        if kor['prezime'] != "":
+            break
+        else:
+            print("Niste nista unijeli.Pokusajte ponovo.")
+    kor['uloga']='kupac'
+    while True:
+        try:
+            kor['broj_pasosa']=input("Unesi broj pasosa")
+            if kor['broj_pasosa']=="":
+                kor['broj_pasosa']=str(None)
+                break
+            kor['broj_pasosa']=str(eval(kor['broj_pasosa']))
+            if len(kor['broj_pasosa']) == 9:
+                break
+            print("Treba da unesete 9 cifara")
+        except SyntaxError:
+            print("Treba da unesete samo brojeve")
+    kor['drzavljanstvo']=input("Unesi drzavljanstvo")
+    if kor['drzavljanstvo']=="":
+        kor['drzavljanstvo']= str(None)
+    while True:
+        try:
+            kor['telefon']=str(eval(input("Unesi kontakt telefon")))
+            break
+        except SyntaxError:
+            print("Unesite broj bez crtica")
+        except NameError:
+            print("Treba unijeti ISKLJUCIVO brojeve")
+    while True:
+        kor['email']=input("Unesi email")
+        if kor['email'][-4:] != '.com':
+            print("Unesi ponovo")
+        elif '@' not in kor['email']:
+            print("Nemate @ u adresi")
+        else:
+            break
+    while True:
+        kor['pol']=input("Unesi pol")
+        if kor['pol']=="":
+            kor['pol']=str(None)
+            break
+        if kor['pol'].upper() in ("MUSKI","ZENSKI","MUŠKI","ŽENSKI"):
+            break
+        else:
+            print("Pogresno ste unijeli")
+    lista_korisnika.append(kor)
+    tekst=open("korisnici.txt","a")
+    tekst.write("\n")
+    tekst.write(korisnici.korisnik2string(kor))
+    tekst.close()
+def prijava():
+    ime_korisnika=input("Unesite korisnicko ime")
+    lozinka=input("Unesite lozinku")
+    for kor in lista_korisnika:
+        if kor['korisnicko_ime']==ime_korisnika and kor['lozinka']==lozinka:
+            if kor['uloga']=='kupac':
+                print("Kao kupac")
+            elif kor['uloga']=='prodavac':
+                print("Kao prodavac")
+            elif kor['uloga']=='menadzer':
+                print("kao menadzer")
+            break
+    else:
+        print("Pogresno ime ili lozinka")
+
+def napuni_listu():
+    tekst1=open("korisnici.txt","r")
+    linije=tekst1.readlines()
+    for linija in linije:
+        kor1=korisnici.str2korisnik(linija)
+        lista_korisnika.append(kor1)
+    tekst1.close()
+    return lista_korisnika
+if __name__ == '__main__':
+    napuni_listu()
+    main()
+Letovi
+import datetime
+from projekat import unos_provjera
+lista_letova=[]
+lista_konkretnih_letova=[]
+def nerealizovani():
+    str2konkretnilet()
+    str2let()
+    sada=datetime.datetime.now()
+    t=sada.strftime("%m.%d.%Y. %H.%M.%S")
+    datum,vrijeme=str(t).split(" ")
+    datum=skloni_tacku_sa_kraja(datum)
+    mjesec,dan,godina=datum.split(".")
+    sati,minuti,sekunde=vrijeme.split(".")
+    sati=skini0(sati)
+    minuti=skini0(minuti)
+    naslov()
+    header()
+    for konkretni_let in lista_konkretnih_letova:
+        konkretni_let['datum_polaska_k']=konkretni_let['datum_polaska_k'][:-1]
+        dan_k, mjesec_k, godina_k = str(konkretni_let['datum_polaska_k']).split(".")
+        dan_k=skini0(dan_k)
+        mjesec_k=skini0(mjesec_k)
+        godina_k=skini0(godina_k)
+        for let in lista_letova:
+            sat_p, min_p = str(let['vrijeme_poletanja']).split(":")
+            sat_p=skini0(sat_p)
+            min_p=skini0(min_p)
+            if konkretni_let['broj_leta_k'] == let['broj_leta']:
+                if eval(godina_k) > eval(godina):
+                    ispisTabele(konkretni_let, let)
+                    break
+                if eval(godina_k) == eval(godina) and eval(mjesec_k) > eval(mjesec) :
+                    ispisTabele(konkretni_let, let)
+                    break
+                elif eval(godina_k) == eval(godina) and eval(mjesec_k) == eval(mjesec) and eval(dan_k) > eval(dan):
+                    ispisTabele(konkretni_let, let)
+                    break
+                elif eval(godina_k) == eval(godina) and eval(mjesec_k) == eval(mjesec) and dan_k == dan:
+                    if eval(sat_p) > eval(sati) or (eval(sat_p) == eval(sati) and eval(min_p) > eval(minuti)):
+                        ispisTabele(konkretni_let, let)
+                        break
+def skloni_tacku_sa_kraja(datum):
+    if datum[-1]==".":
+        datum=datum[:-1]
+    return datum
+def skini0(parametar):
+    if type(parametar) == type(''):
+        if parametar[0]=='0':
+            parametar=parametar[1:]
+    return parametar
+def naslov():
+    print("-"*80 + "  "+"Nerealizovani letovi" + "  "+  "-"*80)
+def header():
+    print("{:^15}|{:^15}|{:^15}|{:^25}|{:^25}|{:^25}|{:^25}|{:^15}|{:^15}|".format("Šifra leta","Polazište","Odredište","Datum polijetanja","Datum slijetanja","Vrijeme polijetanja","Vrijeme slijetanja","Prevoznik","Cijena") )
+    print("-"*185)
+def ispisTabele(konkretni_let,let):
+    print("\n{:^15}|{:^15}|{:^15}|{:^25}|{:^25}|{:^25}|{:^25}|{:^15}|{:^15}|".format(konkretni_let['sifra_leta_k'],let['pol_aerodrom'],let['odr_aerodrom'],konkretni_let['datum_polaska_k'],konkretni_let['datum_dolaska_k'],let['vrijeme_poletanja'],let['vrijeme_sletanja'],let['prevoznik'],let['cijena']))
+    print("-"*185)
+def str2let():
+    let={}
+    svi_letovi=open("avionski_letovi.txt","r")
+    for linija1 in svi_letovi.readlines():
+        if linija1[-1]=="\n":
+            linija1=linija1[:-1]
+        broj_leta,pol_aerodrom,odr_aerodrom,vrijeme_poletanja,vrijeme_sletanja,sutra_sletanje,prevoznik,dani,model_aviona,cijena=linija1.split("|")
+        let={
+            "broj_leta":broj_leta,
+            "pol_aerodrom":pol_aerodrom,
+            "odr_aerodrom":odr_aerodrom,
+            "vrijeme_poletanja":vrijeme_poletanja,
+            "vrijeme_sletanja":vrijeme_sletanja,
+            "sutra_sletanje":sutra_sletanje,
+            "prevoznik":prevoznik,
+            "dani":dani,
+            "model_aviona":model_aviona,
+            "cijena":cijena
+        }
+        lista_letova.append(let)
+        svi_letovi.close()
+    return  lista_letova
+def str2konkretnilet():
+    konkretni_let={}
+    svi_konkretni_letovi=open("konkretni_letovi.txt","r")
+    for linija2 in svi_konkretni_letovi.readlines():
+        if linija2[-1]=="\n":
+            linija2=linija2[:-1]
+        sifra_leta_k,broj_leta_k,datum_polaska_k,datum_dolaska_k=linija2.split("|")
+        konkretni_let={
+            "sifra_leta_k":sifra_leta_k,
+            "broj_leta_k":broj_leta_k,
+            "datum_polaska_k":datum_polaska_k,
+            "datum_dolaska_k":datum_dolaska_k,
+        }
+        lista_konkretnih_letova.append(konkretni_let)
+        svi_konkretni_letovi.close()
+    return lista_konkretnih_letova
+def visekriterijumska_pretraga():
+    str2let()
+    str2konkretnilet()
+    uneseni_kriterijumi=unos_provjera.unos_za_visekriterijumsku_pretragu()
+    odgovori = {
+        'pol_aerodrom': uneseni_kriterijumi[0],
+        'odr_aerodrom': uneseni_kriterijumi[1],
+        'datum_polaska_k': uneseni_kriterijumi[2],
+        'datum_odlaska_k': uneseni_kriterijumi[3],
+        'vrijeme_sletanja': uneseni_kriterijumi[4],
+        'vrijeme_poletanja': uneseni_kriterijumi[5],
+        'prevoznik': uneseni_kriterijumi[6]
+    }
+    rjecnik={k: v for k, v in odgovori.items() if v is not None}
+    sifra_ispisanih_letova=[]
+    header()
+    nema_ispis=True
+    for konkretni_let in lista_konkretnih_letova:
+        for let in lista_letova:
+            if let['broj_leta']==konkretni_let['broj_leta_k']:
+                tacnost = []
+                ispunjeno = True
+                for kljuc in rjecnik.keys():
+                    if (kljuc in let.keys() and rjecnik[kljuc]==(let[kljuc]).upper()) or (kljuc in konkretni_let.keys() and rjecnik[kljuc]==(konkretni_let[kljuc]).upper()):
+                        ispunjeno=True
+                        tacnost.append(ispunjeno)
+                    else:
+                        ispunjeno=False
+                        tacnost.append(ispunjeno)
+                greska=True
+                for element in tacnost:
+                    if element ==False:
+                        greska=False
+                if greska==True:
+                    if konkretni_let['sifra_leta_k'] not in sifra_ispisanih_letova:
+                        ispisTabele(konkretni_let,let)
+                        sifra_ispisanih_letova.append(konkretni_let['sifra_leta_k'])
+                        nema_ispis=False
+    if nema_ispis==True:
+        print("Nema letova za izabrane kategorije.")
+def deset_najjeftinijih_letova():
+    lista_letova1=pronalazak_letova_sa_zadatom_destinacijom()
+    lista_konkretnih_letova=str2konkretnilet()
+    lista=[]
+    for start in range(10):
+        minimalni,indeks=findMin(lista_letova1,'cijena',start)
+        if minimalni== "Nema vise clanova":
+            break
+        lista.append(minimalni)
+    lista1=lista[::-1]
+    header()
+    lista_sifri=[]
+    for let1 in lista1:
+        let3=dict(let1)
+        for konkretni_let in lista_konkretnih_letova:
+            if konkretni_let['broj_leta_k']==let3['broj_leta']:
+                if konkretni_let['sifra_leta_k'] not in lista_sifri:
+                    lista_sifri.append(konkretni_let['sifra_leta_k'])
+                    ispisTabele(konkretni_let,let3)
+def findMin(lista1,kljuc,start):
+    n=len(lista1)
+    if n==0:
+        return "Lista je prazna",""
+    elif start >= n:
+        return "Nema vise clanova",""
+    elif n-start==1:
+        return lista1[start],start
+    min=lista1[start]
+    minPos=start
+    for i in range (start +1,n):
+        if lista1[i][kljuc]<min[kljuc]:
+            min=lista1[i]
+            minPos=i
+            lista1[i]=lista1[start]
+            lista1[start]=min
+    return min,minPos
+def pronalazak_letova_sa_zadatom_destinacijom():
+    lista_letova_sa_zadatom_destinacijom1=[]
+    polaziste,odrediste=unos_provjera.unos_za_najjeftinije_letove()
+    lista_letova=str2let()
+    for let in lista_letova:
+        if let['pol_aerodrom']==polaziste.upper() and let['odr_aerodrom']== odrediste.upper():
+            lista_letova_sa_zadatom_destinacijom1.append(let)
+    return lista_letova_sa_zadatom_destinacijom1
+def fleksibilni_letovi():
+    sortirani_konkretni_letovi=[]
+    nova_lista=[]
+    konkretni_letovi=[]
+    letovi=[]
+    lista_sifri1=[]
+    lista_letova=str2let()
+    lista_konkretnih_letova=str2konkretnilet()
+    polaziste1,odrediste1=unos_provjera.unos_za_najjeftinije_letove()
+    datum_p1,datum_d1=unos_provjera.unos_datuma()
+    fleksibilni_dani_za_polazak,fleksibilni_dani_za_dolazak=unos_provjera.unos_fleksibilnog_broja_dana()
+    datum_p1=skloni_tacku_sa_kraja(datum_p1)
+    datum_d1=skloni_tacku_sa_kraja(datum_d1)
+    dan_p1,mjesec_p1,godina_p1=datum_p1.split(".")
+    dan_d1, mjesec_d1, godina_d1 = datum_d1.split(".")
+    header()
+    ima_ispisa=True
+    for let in lista_letova:
+        for konkretni_let in lista_konkretnih_letova:
+             if let['broj_leta']==konkretni_let['broj_leta_k']:
+                konkretni_let['datum_polaska_k']=skloni_tacku_sa_kraja(konkretni_let['datum_polaska_k'])
+                konkretni_let['datum_dolaska_k']=skloni_tacku_sa_kraja(konkretni_let['datum_dolaska_k'])
+                dan_polaska_leta,mjesec_polaska_leta,godina_polaska_leta=konkretni_let['datum_polaska_k'].split(".")
+                dan_dolaska_leta,mjesec_dolaska_leta,godina_dolaska_leta=konkretni_let['datum_dolaska_k'].split(".")
+                lista=[dan_polaska_leta,mjesec_polaska_leta,godina_polaska_leta,dan_dolaska_leta,mjesec_dolaska_leta,godina_dolaska_leta, dan_p1 ,mjesec_p1,godina_p1,dan_d1,mjesec_d1,godina_d1]
+                dan_polaska_leta=spremanje(dan_polaska_leta)
+                mjesec_polaska_leta=spremanje(mjesec_polaska_leta)
+                godina_polaska_leta=spremanje(godina_polaska_leta)
+                dan_dolaska_leta=spremanje(dan_dolaska_leta)
+                mjesec_dolaska_leta=spremanje(mjesec_dolaska_leta)
+                godina_dolaska_leta=spremanje(godina_dolaska_leta)
+                dan_p1=spremanje(dan_p1)
+                mjesec_p1=spremanje(mjesec_p1)
+                godina_p1=spremanje(godina_p1)
+                dan_d1=spremanje(dan_d1)
+                mjesec_d1=spremanje(mjesec_d1)
+                godina_d1=spremanje(godina_d1)
+                if polaziste1.upper()==let['pol_aerodrom'] and odrediste1.upper()==let['odr_aerodrom']:
+                    datum1=datetime.date(godina_p1, mjesec_p1,dan_p1)
+                    datum2=datetime.date(godina_polaska_leta, mjesec_polaska_leta,dan_dolaska_leta)
+                    razlika=(datum1 - datum2).days
+                    if razlika in range (-eval(fleksibilni_dani_za_polazak),eval(fleksibilni_dani_za_polazak)) :
+                        datum3=datetime.date(godina_d1,mjesec_d1,dan_d1)
+                        datum4=datetime.date(godina_dolaska_leta,mjesec_dolaska_leta,dan_dolaska_leta)
+                        timedelta1=(datum3-datum4).days
+                        if timedelta1 in range(-eval(fleksibilni_dani_za_dolazak),eval(fleksibilni_dani_za_dolazak)):
+                            if konkretni_let['sifra_leta_k'] not in lista_sifri1:
+                                lista_sifri1.append(konkretni_let['sifra_leta_k'])
+                                konkretni_letovi.append(konkretni_let)
+                                letovi.append(let)
+    for i in range(len(lista_sifri1)):
+        najmanji,indeks=findMin(letovi,'cijena', i )
+        nova_lista.append(najmanji)
+        sortirani_konkretni_letovi.append(konkretni_letovi[indeks])
+    nova_lista1=nova_lista[::-1]
+    sortirani_konkretni_letovi1=sortirani_konkretni_letovi[::-1]
+    for m in range(len(nova_lista1)):
+        let1=dict(nova_lista1[m])
+        ispisTabele(sortirani_konkretni_letovi1[m],let1)
+        ima_ispisa=False
+    if ima_ispisa==True:
+        print("Nema letova za izabrane datume.")
+def spremanje(unos):
+    unos=skini0(unos)
+    try:
+        unos=eval(unos)
+        return unos
+    except TypeError:
+        return unos
+if __name__ == '__main__':
+    #nerealizovani()
+    #str2let()
+    #header()
+    #print(unos_za_visekriterijumsku_pretragu())
+    #visekriterijumska_pretraga()
+    #deset_najjeftinijih_letova()
+    #print(findMin(lista1,'cijena',0))
+    #print(pronalazak_letova_sa_zadatom_destinacijom())
+    fleksibilni_letovi()
+Korisnici
+def str2korisnik(linija):
+    if linija[-1]=="\n":
+        linija=linija[:-1]
+    try:
+        korisnicko_ime,lozinka,ime,prezime, uloga,broj_pasosa,drzavljansvo,telefon,email,pol=linija.split("|")
+        kor={
+            'korisnicko_ime':korisnicko_ime,
+            'lozinka':lozinka,
+            'ime':ime,
+            'prezime':prezime,
+            'uloga':uloga,
+            'broj_pasosa':broj_pasosa,
+            'drzavljanstvo':drzavljansvo,
+            'telefon':telefon,
+            'email':email,
+            'pol':pol
+        }
+        return kor
+    except ValueError:
+            korisnicko_ime, lozinka, ime, prezime, uloga =linija.split("|")
+            kor = {
+                'korisnicko_ime': korisnicko_ime,
+                'lozinka': lozinka,
+                'ime': ime,
+                'prezime': prezime,
+                'uloga': uloga,
+                }
+    return kor
+
+def korisnik2string(kor):
+        if len(kor)>5:
+            #lista=[[kor['korisnicko_ime'],kor['lozinka'],kor['ime'],kor['prezime'],kor['uloga'],kor['broj_pasosa'],kor['drzavljanstvo'],kor['telefon'],kor['email'],kor['pol']]]
+            return  '|'.join([kor['korisnicko_ime'], kor['lozinka'], kor['ime'], kor['prezime'], kor['uloga'], kor['broj_pasosa'],kor['drzavljanstvo'], kor['telefon'], kor['email'], kor['pol']])
+        else:
+            return "|".join([kor['korisnicko_ime'], kor['lozinka'], kor['ime'], kor['prezime'], kor['uloga']])
+unos_provjera
+from projekat import letovi
+def unos_za_visekriterijumsku_pretragu():
+    uneseni_kriterijumi=[]
+    lista_konkretnih_letova = letovi.str2konkretnilet()
+    lista_letova = letovi.str2let()
+    greska=True
+    while greska==True:
+        polaziste=input("Unesite zeljeno polaziste")
+        for let in lista_letova:
+            if let['pol_aerodrom']== polaziste.upper():
+                uneseni_kriterijumi.append(polaziste.upper())
+                greska=False
+                break
+        if polaziste == "":
+            uneseni_kriterijumi.append(None)
+            greska = False
+            break
+        if greska==True:
+            for let in lista_letova:
+                if let['pol_aerodrom'] != polaziste:
+                    print("To polaziste ne postoji.Pokusajte ponovo ili preskocite pritiskom na Enter.")
+                    break
+                else:
+                    print("Pogresan unos.Pokusajte ponovo ili preskocite pritiskom na Enter")
+                    break
+    greska=True
+    while greska== True:
+        odrediste=input("Unesi zeljeno odrediste")
+        for let in lista_letova:
+            if let['odr_aerodrom']==odrediste.upper():
+                uneseni_kriterijumi.append(odrediste.upper())
+                greska=False
+                break
+        if odrediste=="":
+            uneseni_kriterijumi.append(None)
+            greska=False
+        if greska==True:
+            print("Pogresan unos.Pokusajte ponovo ili preskocite pritiskom na Enter")
+    greska=True
+    while greska==True:
+        datum_polaska=input("Unesite zeljeni datum polaska u formatu DD.MM.YYYY. ")
+        if datum_polaska=="":
+            uneseni_kriterijumi.append(None)
+            greska=False
+            break
+        if   (datum_polaska[2]==".") and datum_polaska[5]=="." and datum_polaska[10]=="." :
+            if len(datum_polaska)==11:
+                for let in lista_konkretnih_letova:
+                    if datum_polaska==let['datum_polaska_k']:
+                        uneseni_kriterijumi.append(datum_polaska)
+                        greska=False
+                        break
+        if greska==True:
+            print("Niste unijeli u dobrom formatu.Pokusajte ponovo ili preskocite pritiskom na Enter")
+    greska=True
+    while greska==True:
+        datum_dolaska=input("Unesite zeljeni datum dolaska")
+        if datum_dolaska=="":
+            uneseni_kriterijumi.append(None)
+            greska=False
+            break
+        if datum_dolaska[2]=="." and datum_dolaska[5]=="." and datum_dolaska[10]==".":
+            if len(datum_polaska)==11:
+                for let in lista_konkretnih_letova:
+                    if datum_dolaska==let['datum_dolaska_k']:
+                        uneseni_kriterijumi.append(datum_dolaska)
+                        greska=False
+                        break
+        if greska==True:
+            print("Niste unijeli u dobrom formatu.Pokusajte ponovo ili preskocite pritiskom na Enter")
+    greska=True
+    while greska==True:
+        vrijeme_polaska=input("Unesi zeljeno vrijeme polaska u formatu HH:MM")
+        if vrijeme_polaska=="":
+            uneseni_kriterijumi.append(None)
+            greska=False
+            break
+        for let1 in lista_letova:
+            if let1['vrijeme_poletanja']==vrijeme_polaska:
+                if len(vrijeme_polaska)==5 and vrijeme_polaska[2]==":":
+                    uneseni_kriterijumi.append(vrijeme_polaska)
+                    greska=False
+                    break
+        if greska==True:
+            print("Niste unijeli u dobrom formatu.Pokusajte ponovo ili preskocite pritiskom na Enter")
+    greska=True
+    while greska==True:
+        vrijeme_dolaska = input("Unesi zeljeno vrijeme dolaska u formatu HH:MM")
+        if vrijeme_dolaska == "":
+            uneseni_kriterijumi.append(None)
+            greska=False
+            break
+        for let1 in lista_letova:
+            if len(vrijeme_dolaska) == 5 and vrijeme_dolaska[2] == ":" and let1['vrijeme_sletanja']==vrijeme_dolaska:
+                uneseni_kriterijumi.append(vrijeme_dolaska)
+                greska=False
+                break
+        if greska==True:
+            print("Niste unijeli u dobrom formatu.Pokusajte ponovo ili preskocite pritiskom na Enter")
+    greska=True
+    while greska==True:
+        prevoznik = input("Unesi zeljenog prevoznika")
+        for let in lista_letova:
+            if (let['prevoznik']).upper() == prevoznik.upper():
+                uneseni_kriterijumi.append(prevoznik.upper())
+                greska=False
+                break
+        if prevoznik == "":
+            uneseni_kriterijumi.append(None)
+            greska=False
+            break
+        if greska==True:
+            print("Pogresan unos.Pokusajte ponovo ili preskocite pritiskom na Enter")
+    return uneseni_kriterijumi
+def provjera_datuma(unos):
+    if unos == "":
+        return True
+    if unos[2] == "." and unos[5] == "." and unos[10] == ".":
+        if len(unos) == 11:
+            return  False
+def unos_datuma():
+    greska=True
+    while True:
+        try:
+            datum_polaska_leta=input("Unesite datum polaska u formatu DD.MM.YYYY.")
+            if datum_polaska_leta == "":
+                print("Niste nista unijeli")
+                greska=True
+                break
+            if datum_polaska_leta[2] == "." and datum_polaska_leta[5] == "." and datum_polaska_leta[10] == ".":
+                if len(datum_polaska_leta) == 11:
+                    greska=False
+                    break
+        except IndexError:
+            print("Niste unijeli u dobrom formatu")
+    greska=True
+    while True:
+        try:
+            datum_dolaska_leta=input("Unesite datum dolaska")
+            if datum_dolaska_leta == "":
+                print("Niste nista unijeli")
+                greska= True
+                break
+            if datum_dolaska_leta[2] == "." and datum_dolaska_leta[5] == "." and datum_dolaska_leta[10] == ".":
+                if len(datum_dolaska_leta) == 11:
+                    greska= False
+                    break
+        except Exception:
+            print("Niste unijeli u dobrom formatu")
+    return datum_polaska_leta,datum_dolaska_leta
+def unos_fleksibilnog_broja_dana():
+    greska=True
+    while True:
+        fleksibilni_broj_dana_za_polazak=input("Unesi fleksibilni broj dana za polazak")
+        try:
+            fleksibilni_broj_dana_za_polazak=str(eval(fleksibilni_broj_dana_za_polazak))
+            greska=False
+            break
+        except ValueError:
+            print("Treba unijeti BROJ")
+    greska = True
+    while True:
+        fleksibilni_broj_dana_za_dolazak = input("Unesi fleksibilni broj dana za dolazak")
+        try:
+            fleksibilni_broj_dana_za_dolazak = str(eval(fleksibilni_broj_dana_za_dolazak))
+            greska = False
+            break
+        except ValueError:
+            print("Treba unijeti BROJ")
+    return fleksibilni_broj_dana_za_polazak,fleksibilni_broj_dana_za_dolazak
+def unos_za_najjeftinije_letove():
+    lista_letova = letovi.str2let()
+    greska =True
+    while greska==True:
+        polaziste1=input("Unesi zeljeno polaziste")
+        for let in lista_letova:
+            if polaziste1.upper()==(let['pol_aerodrom']).upper():
+                greska=False
+                break
+            else:
+                if polaziste1 == "":
+                    print("Niste unijeli nista.Pokusajte ponovo")
+                    greska = True
+                    break
+                else:
+                    print("Ne postoji zadato polaziste")
+                    greska=True
+                    break
+    greska = True
+    while greska == True:
+        odrediste1 = input("Unesi zeljeno odrediste")
+        for let in lista_letova:
+            if odrediste1.upper() == (let['odr_aerodrom']).upper():
+                greska = False
+                break
+        else:
+            if odrediste1 == "":
+                print("Niste unijeli nista.Pokusajte ponovo")
+                greska = True
+            else:
+                print("Ne postoji zadato odrediste")
+                greska = True
+    return polaziste1,odrediste1
+if __name__ == '__main__':
+    #unos_za_najjeftinije_letove()
+    unos_datuma()
+Konkretni letovi
+0001|BL89|07.12.2019.|07.12.2019.
+0002|BL89|08.12.2019.|08.12.2019.
+0003|BL89|09.12.2019.|09.12.2019.
+0004|BM12|09.12.2019.|09.12.2019.
+0005|BM12|10.12.2019.|10.12.2019.
+0006|BM12|11.12.2019.|11.12.2019.
+0007|LP80|09.12.2019.|09.12.2019.
+0008|LP80|10.12.2019.|10.12.2019.
+0009|LP80|11.12.2019.|11.12.2019.
+0010|BL22|11.12.2019.|12.12.2019.
+0011|BL22|14.12.2019.|15.12.2019.
+0012|BL22|18.12.2019.|19.12.2019.
+0013|SN78|09.12.2019.|09.12.2019.
+0014|SN78|11.12.2019.|11.12.2019.
+0015|SN78|14.12.2019.|14.12.2019.
+0016|ML02|11.12.2019.|12.12.2019.
+0017|ML02|13.12.2019.|14.12.2019.
+0018|ML02|18.12.2019.|19.12.2019.
+0019|LN45|09.12.2019.|09.12.2019.
+0020|LN45|10.12.2019.|10.12.2019.
+0021|LN45|11.12.2019.|11.12.2019.
+0022|LN90|09.12.2019.|09.12.2019.
+0023|LN90|10.12.2019.|10.12.2019.
+0024|LN90|11.12.2019.|11.12.2019.
+0025|LN05|09.12.2019.|09.12.2019.
+0026|LN05|10.12.2019.|10.12.2019.
+0027|LN05|11.12.2019.|11.12.2019.
+0028|NL45|09.12.2019.|09.12.2019.
+0029|NL45|10.12.2019.|10.12.2019.
+0030|NL45|11.12.2019.|11.12.2019.
+0031|NL90|09.12.2019.|09.12.2019.
+0032|NL90|10.12.2019.|10.12.2019.
+0033|NL90|11.12.2019.|11.12.2019.
+0034|NL05|09.12.2019.|09.12.2019.
+0035|NL05|10.12.2019.|10.12.2019.
+0036|NL05|11.12.2019.|11.12.2019.
+0037|CM30|10.12.2019.|10.12.2019.
+0038|CM30|12.12.2019.|12.12.2019.
+0039|CM30|17.12.2019.|17.12.2019.
+0040|BL99|13.12.2019.|14.12.2019.
+0041|BL99|20.12.2019.|21.12.2019.
+0042|BL99|27.12.2019.|28.12.2019.
+0043|MP36|09.12.2019.|09.12.2019.
+0044|MP36|10.12.2019.|10.12.2019.
+0045|MP36|14.12.2019.|14.12.2019.
+0046|LB07|11.12.2019.|11.12.2019.
+0047|LB07|13.12.2019.|13.12.2019.
+0048|LB07|18.12.2019.|18.12.2019.
+0049|MB70|09.12.2019.|09.12.2019.
+0050|MB70|13.12.2019.|13.12.2019.
+0051|MB70|16.12.2019.|16.12.2019.
+0052|CB11|10.12.2019.|10.12.2019.
+0053|CB11|13.12.2019.|13.12.2019.
+0054|CB11|17.12.2019.|17.12.2019.
+0055|NP33|09.12.2019.|09.12.2019.
+0056|NP33|11.12.2019.|11.12.2019.
+0057|NP33|13.12.2019.|13.12.2019.
+0058|BP46|09.12.2019.|09.12.2019.
+0059|BP46|11.12.2019.|11.12.2019.
+0060|BP46|13.12.2019.|13.12.2019.
+0061|BL63|15.12.2019.|15.12.2019.
+Letovi
+BP46|BEG|LBG|09:10|11:30|ne|AirSerbia|ponedeljak sreda petak nedelja|Boeing 747|200
+BL89|BEG|LCY|13:25|16:00|ne|AirSerbia|ponedeljak sreda petak subota nedelja|Airbus A300|300
+BM12|BEG|VKO|08:45|11:15|ne|AirSerbia|ponedeljak utorak sreda četvrtak petak subota nedelja|Boeing 747|250
+LP80|LCY|LBG|12:00|12:40|ne|AirUK|ponedeljak utorak sreda četvrtak petak subota nedelja|Airbus A300|90
+BL22|BEG|LAX|14:15|12:10|da|AirSerbia|sreda subota|Boeing 777|500
+SN78|GRU|JFK|10:00|13:30|ne|AirBrazil|ponedeljak sreda subota|Airbus A300|300
+ML02|MLB|LCY|16:14|09:00|da|AirAustralia|sreda petak|Boeing 777|500
+LN45|LAX|JFK|13:00|15:00|ne|AirUSA|ponedeljak utorak sreda četvrtak petak subota nedelja|Boeing 747|100
+LN90|LAX|JFK|20:00|22:00|ne|AirUSA|ponedeljak utorak sreda četvrtak petak subota nedelja|Boeing 747|100
+LN05|LAX|JFK|06:00|08:00|ne|AirUSA|ponedeljak utorak sreda četvrtak petak subota nedelja|Boeing 747|100
+NL45|JFK|LAX|13:00|15:00|ne|AirUSA|ponedeljak utorak sreda četvrtak petak subota nedelja|Boeing 747|100
+NL90|JFK|LAX|20:00|22:00|ne|AirUSA|ponedeljak utorak sreda četvrtak petak subota nedelja|Boeing 747|100
+NL05|JFK|LAX|06:00|08:00|ne|AirUSA|ponedeljak utorak sreda četvrtak petak subota nedelja|Boeing 747|100
+CM30|CPT|VKO|16:10|21:35|ne|AirSouthAfrica|utorak četvrtak|Boeing 777|500
+BL99|PEK|LCY|17:32|05:00|da|AirChina|petak|Airbus A300|260
+MP36|VKO|LBG|17:15|21:30|ne|AirRussia|ponedeljak utorak subota|Boeing 777|420
+LB07|LAX|PEK|09:24|13:45|ne|AirUSA|sreda petak|Boeing 747|150
+MB70|MLB|PEK|13:45|18:00|ne|AirAustralia|ponedeljak petak|Boeing 747|370
+CB11|CPT|BEG|10:12|16:30|ne|AirSouthAfrica|utorak petak|Airbus A300|280
+NP33|JFK|LBG|08:00|16:00|ne|AirUSA|ponedeljak sreda petak subota nedelja|Boeing 777|430
+BL63|BEG|LCY|13:25|16:00|ne|AirBrazil|ponedeljak sreda petak subota nedelja|Airbus A300|400
+Modeli aviona
+Boeing 747|20|A B C D E F G H I J K L M N O
+Airbus A300|18|A B C D E F G H I J K L
+Boeing 777|25|A B C D E F G H I J K L M N O P Q R S T
+Korisnici.txt
+Bubi|Bubisa|Zoran|Bukorac|kupac|374892901|Srpsko|0643272852|zoran@email.com|musko
+ColdBubbyGuy|Teolema|Teodor|Sakal Franciskovic|kupac|212353486|Srpsko|0661564681|teodor@email.com|musko
+P1glu|Pavel|Pavle|Glusac|kupac|784561654|Srpsko|0649875635|pavle@email.com|musko
+Laza|Password|Lazar|Pavlovic|prodavac
+Djole|Anime|Mihajlo|Djordjevic|prodavac
+ShoneMakarone|KICZ|Nenad|Rakovic|menadzer
+Ivana|Kasikovic|Ivana|Kasikovic|kupac|234|srpsko|234|ikasikovic@yahoo.com|Zenski
+Rale|raka|Rastko|Peric|kupac|12345678|srpsko|280138|tra@yahoo.com|Musko
+Pera|p123|Pera|Peric|kupac|12345|Srpsko|1829293|pera2@yahoo.com|Muski
+Srki|sr|Srdjan|Seric|kupac|1234|Spsko|1213|srki@yahoo.com|Muski
+Ina|Sifra|Ina|Katic|kupac|None|None|89|ina@yahoo.com|None
