@@ -1,5 +1,5 @@
 
 Ivana Kasikovic
 Ivana Kasikovic
-Ivana Jankovic***s
+Ivana Jankovic***
 GLupi projekat
