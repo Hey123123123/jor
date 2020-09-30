@@ -1,0 +1,4 @@
+var r = prompt("Unesite poluprecnik valjka:");
+var H = prompt("Unesite visinu valjka:");
+var V = parseInt(r)*parseInt(r)*3.14*parseInt(H);
+alert("Zapremina valjka iznosi "+ V);
