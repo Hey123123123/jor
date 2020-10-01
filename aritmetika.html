@@ -1,0 +1,37 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name=“author” content=“Ivana Kašiković”>
+<meta name="viewport" content="width=device-width, initial-
+scale=1.0">
+
+</head>
+<body>
+
+<script type = "text/javascript">
+var rezultat;
+var t1 = parseInt(prompt("Unesite prvi broj:"));
+var operacija = prompt("Unesite operaciju:");
+var t2 = parseInt(prompt("Unesite drugi broj: "));
+switch(operacija){
+case "+":
+	rezultat = t1 + t2;
+	break;
+case "-":
+	rezultat = t1 - t2;
+	break;
+case "/":
+	rezultat = t1 / t2;
+	break;
+case "*":
+	rezultat = t1 * t2;
+	break;
+default:
+	rezultat = "Greska";
+	break;
+}
+
+alert("Rezultat: "+ rezultat);
+</script>
+</body>
+</html>
